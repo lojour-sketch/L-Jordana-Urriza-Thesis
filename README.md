@@ -17,8 +17,9 @@ This repository contains the **cover page** and **supplementary tables** corresp
 
 ## 📂 Contents
 
-- 📎 Cover page (including AI-generated artistic variations)
+- 📎 Cover page
 - 📊 Supplementary tables
+- 🎨 Art quiz: https://lojour-sketch.github.io/L-Jordana-Urriza-Thesis/
 
 ---
 
