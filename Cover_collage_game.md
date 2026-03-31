@@ -7,5 +7,5 @@ Match each AI-generated cover to the artist it was inspired by
 * Monet
 * Picasso
 * Botticelli
-* Monet
+* Goya
 * Van Gogh
