@@ -50,6 +50,9 @@
       transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
       z-index: 1;
       border-radius: 8px;
+      /* keep the zone visually invisible until selected/answered */
+      background: transparent;
+      border: 0;
     }
 
     /* Zonas de selección */
@@ -66,9 +69,57 @@
     .zone.selected {
       transform: scale(1.08); /* Hace que la zona crezca */
       box-shadow: 0 15px 35px rgba(0,0,0,0.4); /* Sombra para dar profundidad */
-      background: rgba(255, 255, 255, 0.1); /* Brillo sutil */
-      border: 2px solid rgba(255, 255, 255, 0.8);
+      background: rgba(255, 255, 255, 0.06); /* Brillo sutil */
+      border: 2px solid rgba(255, 255, 255, 0.6);
       z-index: 20; /* Se asegura de estar por encima del resto */
+    }
+
+    /* VISUAL FEEDBACK FOR ANSWERED ZONES */
+    .zone.answered {
+      background: rgba(39, 174, 96, 0.12); /* soft green overlay */
+      border: 2px solid rgba(39, 174, 96, 0.85);
+      box-shadow: 0 12px 30px rgba(0,0,0,0.35);
+      z-index: 30;
+      transform: none;
+      cursor: default;
+    }
+
+    /* Check badge in the top-right of the zone */
+    .zone.answered::after {
+      content: '✓';
+      position: absolute;
+      right: 8px;
+      top: 8px;
+      background: rgba(39,174,96,0.98);
+      color: white;
+      width: 30px;
+      height: 30px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 50%;
+      font-weight: 700;
+      font-size: 16px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.2);
+    }
+
+    /* Small label in the bottom-left showing the author's name */
+    .zone.answered::before {
+      content: attr(data-author);
+      position: absolute;
+      left: 8px;
+      bottom: 8px;
+      background: rgba(255,255,255,0.95);
+      color: #222;
+      padding: 4px 8px;
+      border-radius: 6px;
+      font-size: 0.85rem;
+      font-weight: 600;
+      box-shadow: 0 3px 8px rgba(0,0,0,0.12);
+      max-width: calc(100% - 48px);
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
     }
 
     #choices {
@@ -116,6 +167,19 @@
       font-weight: 600;
       font-size: 1.1rem;
       min-height: 1.5em;
+    }
+
+    /* Responsive tweak for small screens */
+    @media (max-width: 720px) {
+      .quiz-container {
+        flex-direction: column;
+        gap: 20px;
+      }
+
+      .image-container {
+        height: 60vh;
+        aspect-ratio: 3/4;
+      }
     }
   </style>
 </head>
@@ -165,10 +229,19 @@
   };
 
   function selectImage(id) {
+    // If the zone was already answered, still allow selecting to show info but don't allow guessing
     current = id;
     document.querySelectorAll('.zone').forEach(z => z.classList.remove('selected'));
-    document.querySelector(`.z${id}`).classList.add('selected');
+    const zone = document.querySelector(`.z${id}`);
+    zone.classList.add('selected');
     document.getElementById('result').textContent = '';
+
+    // If already answered, show a small message about it
+    if (answeredZones.has(id)) {
+      const author = zone.getAttribute('data-author') || answers[id];
+      document.getElementById("result").textContent = `ℹ️ Already answered: ${author}`;
+      document.getElementById("result").style.color = "#2980b9";
+    }
   }
 
   function checkAnswer(choice) {
@@ -179,13 +252,25 @@
     }
     const result = document.getElementById("result");
 
-    if (answeredZones.has(current)) return;
+    if (answeredZones.has(current)) {
+      result.textContent = "ℹ️ Already answered.";
+      result.style.color = "#2980b9";
+      return;
+    }
 
     if (choice === answers[current]) {
       result.textContent = "✅ Correct!";
       result.style.color = "#27ae60";
       answeredZones.add(current);
 
+      // visually mark the image zone as answered
+      const zone = document.querySelector(`.z${current}`);
+      zone.classList.remove('selected');
+      zone.classList.add('answered');
+      zone.setAttribute('data-author', choice);
+      zone.style.pointerEvents = 'none'; // make it non-interactive
+
+      // disable the answer button globally
       document.querySelectorAll('#choices button').forEach(btn => {
         if (btn.textContent === choice) btn.disabled = true;
       });
