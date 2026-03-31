@@ -1,0 +1,205 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+
+  <style>
+    body {
+      font-family: 'Poppins', sans-serif;
+      background: #f5f5f5;
+      margin: 0;
+      height: 100vh;
+      display: flex;
+      justify-content: center; 
+      align-items: center;     
+      overflow: hidden;        
+    }
+
+    .quiz-container {
+      display: flex;
+      flex-direction: row;
+      align-items: center; 
+      gap: 50px;
+      max-width: 95vw;
+      max-height: 95vh;
+    }
+
+    .image-container {
+      position: relative;
+      height: 85vh; 
+      aspect-ratio: 3 / 4; 
+    }
+
+    img {
+      height: 100%;
+      width: auto;
+      display: block;
+      border-radius: 12px;
+      box-shadow: 0 4px 15px rgba(0,0,0,0.1);
+    }
+
+    .zone {
+      position: absolute;
+      width: 50%;
+      height: 25%;
+      cursor: pointer;
+      box-sizing: border-box;
+      /* Transición suave para el efecto pop-up */
+      transition: all 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+      z-index: 1;
+      border-radius: 8px;
+    }
+
+    /* Zonas de selección */
+    .z1 { top: 0; left: 0; }
+    .z2 { top: 0; left: 50%; }
+    .z3 { top: 25%; left: 0; }
+    .z4 { top: 25%; left: 50%; }
+    .z5 { top: 50%; left: 0; }
+    .z6 { top: 50%; left: 50%; }
+    .z7 { top: 75%; left: 0; }
+    .z8 { top: 75%; left: 50%; }
+
+    /* EFECTO POP-UP */
+    .zone.selected {
+      transform: scale(1.08); /* Hace que la zona crezca */
+      box-shadow: 0 15px 35px rgba(0,0,0,0.4); /* Sombra para dar profundidad */
+      background: rgba(255, 255, 255, 0.1); /* Brillo sutil */
+      border: 2px solid rgba(255, 255, 255, 0.8);
+      z-index: 20; /* Se asegura de estar por encima del resto */
+    }
+
+    #choices {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      min-width: 220px;
+    }
+
+    #choices p {
+      margin-top: 0;
+      font-weight: 600;
+      font-size: 1.3rem;
+      color: #222;
+    }
+
+    button {
+      font-size: 1rem;
+      padding: 12px 18px;
+      margin: 5px 0;
+      border: none;
+      border-radius: 10px;
+      background: #333;
+      color: white;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      box-shadow: 0 2px 5px rgba(0,0,0,0.1);
+    }
+
+    button:hover { 
+      background: #555; 
+      transform: translateX(8px); 
+    }
+
+    button:disabled {
+      background: #ddd;
+      color: #999;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    #result {
+      margin-top: 20px;
+      font-weight: 600;
+      font-size: 1.1rem;
+      min-height: 1.5em;
+    }
+  </style>
+</head>
+<body>
+
+<div class="quiz-container">
+  <div class="image-container">
+    <img src="collage.png" alt="Quiz Collage">
+
+    <div class="zone z1" onclick="selectImage(1)"></div>
+    <div class="zone z2" onclick="selectImage(2)"></div>
+    <div class="zone z3" onclick="selectImage(3)"></div>
+    <div class="zone z4" onclick="selectImage(4)"></div>
+    <div class="zone z5" onclick="selectImage(5)"></div>
+    <div class="zone z6" onclick="selectImage(6)"></div>
+    <div class="zone z7" onclick="selectImage(7)"></div>
+    <div class="zone z8" onclick="selectImage(8)"></div>
+  </div>
+
+  <div id="choices">
+    <p>🎨 Who painted it?</p>
+    <button onclick="checkAnswer('Monet')">Monet</button>
+    <button onclick="checkAnswer('Picasso')">Picasso</button>
+    <button onclick="checkAnswer('Van Gogh')">Van Gogh</button>
+    <button onclick="checkAnswer('Goya')">Goya</button>
+    <button onclick="checkAnswer('Bosch')">Bosch</button>
+    <button onclick="checkAnswer('Botticelli')">Botticelli</button>
+    <button onclick="checkAnswer('Caravaggio')">Caravaggio</button>
+    <button onclick="checkAnswer('Hilma af Klint')">Hilma af Klint</button>
+    <p id="result"></p>
+  </div>
+</div>
+
+<script>
+  let current = null;
+  const answeredZones = new Set();
+
+  const answers = {
+    1: "Caravaggio",
+    2: "Picasso",
+    3: "Van Gogh",
+    4: "Goya",
+    5: "Botticelli",
+    6: "Monet",
+    7: "Bosch",
+    8: "Hilma af Klint"
+  };
+
+  function selectImage(id) {
+    current = id;
+    document.querySelectorAll('.zone').forEach(z => z.classList.remove('selected'));
+    document.querySelector(`.z${id}`).classList.add('selected');
+    document.getElementById('result').textContent = '';
+  }
+
+  function checkAnswer(choice) {
+    if (!current) {
+        document.getElementById("result").textContent = "⚠️ Select a painting first!";
+        document.getElementById("result").style.color = "#e67e22";
+        return;
+    }
+    const result = document.getElementById("result");
+
+    if (answeredZones.has(current)) return;
+
+    if (choice === answers[current]) {
+      result.textContent = "✅ Correct!";
+      result.style.color = "#27ae60";
+      answeredZones.add(current);
+
+      document.querySelectorAll('#choices button').forEach(btn => {
+        if (btn.textContent === choice) btn.disabled = true;
+      });
+    } else {
+      result.textContent = "❌ Wrong :(";
+      result.style.color = "#c0392b";
+    }
+
+    if (answeredZones.size === Object.keys(answers).length) {
+      result.textContent = "🎉 Done! Now back to that thesis!";
+      result.style.color = "#2980b9";
+    }
+  }
+</script>
+
+</body>
+</html>
