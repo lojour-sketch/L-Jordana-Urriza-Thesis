@@ -1,5 +1,5 @@
-# L-Jordana-Urriza-Thesis
 Cover page and Supplementary Tables of the PhD thesis titled 
-"MOLECULAR MECHANISMS GOVERNING CAR T CELL RESPONSE IN MM PATIENTS AT SINGLE CELL LEVEL"
+## "Molecular mechanisms governing CAR T cell response in MM patients at single cell level" 
 March 2026
+
 Lorea Jordana Urriza
